@@ -1,9 +1,8 @@
-package  config
+package config
 
 import (
 	"fmt"
 )
-
 
 // Implémentation simple
 type InMemoryConfig struct {
@@ -30,7 +29,7 @@ func NewInMemoryConfig() *InMemoryConfig {
 			"cflagsRelease": `-O2 -DNDEBUG -DDEBUG_MEMORY=0 -fomit-frame-pointer -march=native -D_FORTIFY_SOURCE=2`,
 
 			"cflagsDebug": `-g3 -O0 -DDEBUG -DDEBUG_MEMORY=1 -ftrapv`,
-			"linkFlags" : "-lSDL2 -lm",
+			"linkFlags":   "-lSDL2 -lm",
 		},
 	}
 }
