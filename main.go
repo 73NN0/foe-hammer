@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	commands "github.com/73NN0/foe-hammer"
+	"github.com/73NN0/foe-hammer/commands"
 )
 
 // Interface pour la config
