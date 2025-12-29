@@ -1,0 +1,6 @@
+pkgname=libkeyboard
+pkgdesc="handle keyboard mapping"
+produces=(lib/libkeyboard.a)
+depends=("sdl")
+source=(keyboard.c)
+strategy=system

@@ -1,0 +1,6 @@
+pkgname=libcolorbuffer
+pkgdesc="handle colorbuffer"
+produces=(lib/libcolorbuffer.a)
+depends=()
+source=(colorbuffer.c)
+strategy=system

@@ -4,18 +4,20 @@ package domain
 
 type Module struct {
 	Name        string
+	DirPath     string // Directory where the module lives
+	Path        string // full path (abs )
 	Description string
 	Produces    []string // relatifs paths of build artefacts
 	Depends     []string // dependency modules
 	MakeDepends []string // external dependency ( SDL2 etc...)
 	Sources     []string // sources files
-	Strategy    strategy // system or custom
+	Strategy    Strategy // system or custom
 	BuildFunc   string   // build hook content if custom stragey choosen
 }
 
-type strategy string
+type Strategy string
 
 const (
-	StrategySystem strategy = "system"
-	StrategyCustom strategy = "custom"
+	StrategySystem Strategy = "system"
+	StrategyCustom Strategy = "custom"
 )
