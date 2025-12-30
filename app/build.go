@@ -10,7 +10,6 @@ import (
 type BuildService struct {
 	loader   ports.ModuleLoader
 	compiler ports.Compiler
-	host     domain.Host
 	graph    *domain.BuildGraph
 	order    []string
 }
@@ -18,12 +17,10 @@ type BuildService struct {
 func NewBuildService(
 	loader ports.ModuleLoader,
 	compiler ports.Compiler,
-	host domain.Host,
 ) *BuildService {
 	return &BuildService{
 		loader:   loader,
 		compiler: compiler,
-		host:     host,
 	}
 }
 

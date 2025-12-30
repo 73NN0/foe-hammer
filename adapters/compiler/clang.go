@@ -73,48 +73,6 @@ func (c *ClangCompiler) Compile(m *domain.Module, target domain.Target, outDir s
 	return nil
 }
 
-// func (c *ClangCompiler) Compile(m *domain.Module, target domain.Target, outDir string) error {
-// 	config := domain.GetCrossConfig(c.host, target)
-
-// 	// 1. Compiler les sources en .o
-// 	var objects []string
-// 	for _, src := range m.Sources {
-// 		obj := strings.TrimSuffix(src, ".c") + ".o"
-// 		objPath := filepath.Join(outDir, "obj", m.Name, obj)
-
-// 		args := []string{"-c", src, "-o", objPath}
-// 		args = append(args, config.Flags...)
-
-// 		if err := c.executor.Run(config.Compiler, args, m.DirPath, os.Stdout, os.Stderr); err != nil {
-// 			return err
-// 		}
-// 		objects = append(objects, objPath)
-// 	}
-
-// 	// 2. Produire l'artefact déclaré
-// 	for _, prod := range m.Produces {
-// 		if strings.HasSuffix(prod, ".a") {
-// 			// Archive
-// 			libPath := filepath.Join(outDir, prod)
-// 			args := append([]string{"rcs", libPath}, objects...)
-// 			if err := c.executor.Run("ar", args, ".", os.Stdout, os.Stderr); err != nil {
-// 				return err
-// 			}
-// 		} else if strings.Contains(prod, "bin/") {
-// 			// Link executable
-// 			exePath := filepath.Join(outDir, prod)
-// 			args := append([]string{"-o", exePath}, objects...)
-// 			args = append(args, config.Flags...)
-// 			// TODO: ajouter les libs des dépendances
-// 			if err := c.executor.Run(config.Compiler, args, ".", os.Stdout, os.Stderr); err != nil {
-// 				return err
-// 			}
-// 		}
-// 	}
-
-// 	return nil
-// }
-
 func (c *ClangCompiler) CanHandle(host domain.Host, target domain.Target) bool {
 	_, err := exec.LookPath("clang")
 	return err == nil
