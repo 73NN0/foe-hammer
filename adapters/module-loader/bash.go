@@ -19,7 +19,6 @@ const (
 	tagDeps = "DEPS:"
 	tagMake = "MAKE:"
 	tagSrcs = "SRCS:"
-	tagStgy = "STGY:"
 )
 
 func buildScript(path string) string {
@@ -29,8 +28,7 @@ printf '` + tagDesc + `%s\n' "$pkgdesc"
 printf '` + tagProd + `%s\n' "${produces[*]}"
 printf '` + tagDeps + `%s\n' "${depends[*]}"
 printf '` + tagMake + `%s\n' "${makedepends[*]}"
-printf '` + tagSrcs + `%s\n' "${source[*]}"
-printf '` + tagStgy + `%s\n' "$strategy"`
+printf '` + tagSrcs + `%s\n' "${source[*]}"`
 }
 
 type BashLoader struct{}
@@ -83,8 +81,6 @@ func (l *BashLoader) parseTagged(output *bytes.Buffer) (*domain.Module, error) {
 			m.MakeDepends = strings.Fields(strings.TrimPrefix(line, tagMake))
 		case strings.HasPrefix(line, tagSrcs):
 			m.Sources = strings.Fields(strings.TrimPrefix(line, tagSrcs))
-		case strings.HasPrefix(line, tagStgy):
-			m.Strategy = domain.Strategy(strings.TrimPrefix(line, tagStgy))
 		}
 	}
 
@@ -112,15 +108,13 @@ func (l *BashLoader) LoadAll(rootDir string) ([]*domain.Module, error) {
 			continue
 		}
 
-		// improve this :
-		// it's hardcoded
 		if strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
 		if entry.Name() == "bin" || entry.Name() == "build" {
 			continue
 		}
-		// Vérifier si PKGBUILD existe (insensible à la casse)
+
 		path, found := l.findManifest(filepath.Join(rootDir, entry.Name()))
 		if !found {
 			continue

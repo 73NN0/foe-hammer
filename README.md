@@ -1,46 +1,70 @@
-<img width="768" height="512" alt="image" src="https://github.com/user-attachments/assets/f0cdbb2a-9e7e-4cf3-a0b8-6544c1186787" />
-
 # foe-hammer
-
-*Yes I'm a fan of the Halo franchise*
 
 > A build orchestrator that doesn't care how you build, just what you produce
 
-## why 
+## What it does
 
-I'm just tired to convince friends to code with me in C projects because I'm not using the "right" tool ( aka Cmake )
+1. Scans for modules (PKGBUILD files)
+2. Builds a dependency graph
+3. Computes build order (topological sort)
+4. Executes each module's `build()` hook in order
 
-I personaly prefer to write script and dealing with the compiler. 
+**foe-hammer does NOT compile anything.** It just orchestrates.
 
-So I'm trying to build a tool to concile both approach.
+## PKGBUILD format
 
-It's under heavely development
-
-## The idea
-
-You have a C project with multiple modules.
-Some use CMake, some use hand-written Makefiles, some just shell scripts.
-
-**foe-hammer** says: "Tell me what each module produces and what it needs,
-I'll figure out the right order and run them. I don't care HOW."
-
-## How it works
-
-1. Each module declares itself (PKGBUILD-like):
 ```bash
-   pkgname=libfoo
-   produces=(lib/libfoo.a)
-   depends=(libbar)
-   ...
+pkgname=mylib
+pkgdesc="My library"
+produces=(lib/libmylib.a)
+depends=(otherliba otherlibb)
+makedepends=(clang)
+source=(foo.c bar.c)
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_LIBDIR"
+    clang -c "$FOE_SRCDIR/foo.c" -o "$FOE_OBJDIR/foo.o"
+    clang -c "$FOE_SRCDIR/bar.c" -o "$FOE_OBJDIR/bar.o"
+    ar rcs "$FOE_LIBDIR/libmylib.a" "$FOE_OBJDIR"/*.o
+}
 ```
 
-2. foe-hammer builds a dependency graph
+## Environment variables
 
-3. Each module runs its build however it wants:
-   - CMake? ✓
-   - Makefile? ✓
-   - bash script? ✓
-   - Zig build? ✓
-   - Cargo? ✓
+foe-hammer injects these into your `build()` hook:
 
-4. foe-hammer orchestrates the order and cross-compilation targets
+| Variable | Description |
+|----------|-------------|
+| `FOE_HOST_OS` | Host OS (darwin, linux...) |
+| `FOE_HOST_ARCH` | Host arch (amd64, arm64...) |
+| `FOE_TARGET_OS` | Target OS |
+| `FOE_TARGET_ARCH` | Target arch |
+| `FOE_OUTDIR` | Build output root |
+| `FOE_LIBDIR` | Where to put .a files |
+| `FOE_BINDIR` | Where to put executables |
+| `FOE_OBJDIR` | Where to put .o files (per module) |
+| `FOE_SRCDIR` | Module source directory |
+| `FOE_MODULE_NAME` | Current module name |
+
+## Architecture
+
+```
+PKGBUILD → ModuleLoader → Module
+                            ↓
+                       BuildGraph → order (topo sort)
+                            ↓
+                       Orchestrator
+                            ↓
+                       ContextProvider → env vars
+                            ↓
+                       HookRunner → executes build()
+                            ↓
+                       Executor
+```
+
+## Usage
+
+```bash
+go build -o foe ./main.go
+./foe ./myproject
+```
