@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"os"
 	"runtime"
 	"testing"
 
@@ -17,6 +18,20 @@ func TestBuild(t *testing.T) {
 		OS:   runtime.GOOS,
 		Arch: runtime.GOARCH,
 	}
+
+	target := domain.Target{
+		OS:   runtime.GOOS,
+		Arch: runtime.GOARCH,
+	}
+
+	binDirectory := "../testdata/simple/bin"
+
 	buildService := app.NewBuildService(moduleloader.NewBashLoader(), compiler.NewClangCompiler(executor.NewShell(), host))
 
+	if err := buildService.BuildAll("../testdata/simple", target, binDirectory); err != nil {
+		os.RemoveAll(binDirectory)
+		t.Fatal(err)
+	}
+
+	os.RemoveAll(binDirectory)
 }

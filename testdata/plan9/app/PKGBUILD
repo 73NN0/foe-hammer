@@ -1,0 +1,6 @@
+pkgname=app
+pkgdesc="Demo application with platform abstraction"
+produces=(bin/app)
+depends=(libcore platform-unix)
+source=(main.c)
+strategy=system

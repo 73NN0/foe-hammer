@@ -1,0 +1,6 @@
+pkgname=app
+pkgdesc="Demo application"
+produces=(bin/app)
+depends=(libb)
+source=(main.c)
+strategy=system

@@ -1,6 +1,0 @@
-pkgname=engine
-pkgdesc="Main executable"
-produces=(bin/engine)
-depends=(libgraphic libkeyboard sdl)
-source=(engine.c)
-strategy=system

@@ -117,7 +117,7 @@ func (g *BuildGraph) Validate() error {
 	for name, deps := range g.edges {
 		for _, dep := range deps {
 			if _, exists := g.modules[dep]; !exists {
-				return fmt.Errorf("module %s depens on %s, but %s not found", name, dep, dep)
+				return fmt.Errorf("module %s depends on %s, but %s not found", name, dep, dep)
 			}
 		}
 	}

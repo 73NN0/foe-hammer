@@ -1,0 +1,6 @@
+pkgname=platform-unix
+pkgdesc="Unix platform implementation"
+produces=(lib/libplatform.a)
+depends=()
+source=(platform_unix.c)
+strategy=system

@@ -1,0 +1,6 @@
+pkgname=liba
+pkgdesc="Library A (depends on libb - creates cycle!)"
+produces=(lib/liba.a)
+depends=(libb)
+source=(a.c)
+strategy=system

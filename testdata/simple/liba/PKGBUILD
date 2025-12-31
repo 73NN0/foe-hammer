@@ -1,0 +1,6 @@
+pkgname=liba
+pkgdesc="Math utilities"
+produces=(lib/liba.a)
+depends=()
+source=(a.c)
+strategy=system

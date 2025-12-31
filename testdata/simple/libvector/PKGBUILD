@@ -1,6 +1,0 @@
-pkgname=libvectors
-pkgdesc="Vector math operations"
-produces=(lib/libvectors.a)
-depends=()
-source=(vectors.c)
-strategy=system

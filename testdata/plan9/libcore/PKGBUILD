@@ -1,0 +1,6 @@
+pkgname=libcore
+pkgdesc="Platform-independent core logic"
+produces=(lib/libcore.a)
+depends=()
+source=(core.c)
+strategy=system

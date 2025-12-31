@@ -1,0 +1,6 @@
+pkgname=platform-stub
+pkgdesc="Stub platform implementation (for testing)"
+produces=(lib/libplatform.a)
+depends=()
+source=(platform_stub.c)
+strategy=system

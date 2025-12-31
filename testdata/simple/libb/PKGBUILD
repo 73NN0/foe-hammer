@@ -1,0 +1,6 @@
+pkgname=libb
+pkgdesc="Advanced math using liba"
+produces=(lib/libb.a)
+depends=(liba)
+source=(b.c)
+strategy=system

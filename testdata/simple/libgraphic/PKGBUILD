@@ -1,6 +1,0 @@
-pkgname=libgraphic
-pkgdesc="Graphics rendering"
-produces=(lib/libgraphic.a)
-depends=(libvectors libcolorbuffer libkeyboard)
-source=(renderer.c cube_demo.c cube_face.c)
-strategy=system

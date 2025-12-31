@@ -1,7 +1,0 @@
-pkgname=platform-sdl
-pkgdesc="handle keyboard mapping"
-produces=(lib/platform.a)
-depends=()
-makedepends=(SDL2)
-source=(keyboard.c)
-strategy=system
