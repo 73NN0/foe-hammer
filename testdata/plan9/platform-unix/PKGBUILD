@@ -1,6 +1,15 @@
 pkgname=platform-unix
 pkgdesc="Unix platform implementation"
-produces=(lib/libplatform.a)
 depends=()
+makedepends=(clang ar)
 source=(platform_unix.c)
-strategy=system
+
+produces() {
+    echo "lib/libplatform.a"
+}
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_LIBDIR"
+    clang -c "$FOE_SRCDIR/platform_unix.c" -o "$FOE_OBJDIR/platform_unix.o"
+    ar rcs "$FOE_LIBDIR/libplatform.a" "$FOE_OBJDIR/platform_unix.o"
+}

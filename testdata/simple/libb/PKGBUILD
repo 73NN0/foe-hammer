@@ -1,6 +1,15 @@
 pkgname=libb
 pkgdesc="Advanced math using liba"
-produces=(lib/libb.a)
 depends=(liba)
+makedepends=(clang ar)
 source=(b.c)
-strategy=system
+
+produces() {
+    echo "lib/libb.a"
+}
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_LIBDIR"
+    clang -c "$FOE_SRCDIR/b.c" -I"$FOE_SRCDIR/../liba" -o "$FOE_OBJDIR/b.o"
+    ar rcs "$FOE_LIBDIR/libb.a" "$FOE_OBJDIR/b.o"
+}

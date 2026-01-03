@@ -1,0 +1,12 @@
+pkgdesc="Missing pkgname"
+depends=()
+makedepends=(clang)
+source=(foo.c)
+
+produces() {
+    echo "lib/libfoo.a"
+}
+
+build() {
+    echo "building..."
+}

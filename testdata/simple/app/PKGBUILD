@@ -1,6 +1,15 @@
 pkgname=app
 pkgdesc="Demo application"
-produces=(bin/app)
 depends=(libb)
+makedepends=(clang)
 source=(main.c)
-strategy=system
+
+produces() {
+    echo "bin/app"
+}
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_BINDIR"
+    clang -c "$FOE_SRCDIR/main.c" -I"$FOE_SRCDIR/../libb" -I"$FOE_SRCDIR/../liba" -o "$FOE_OBJDIR/main.o"
+    clang -o "$FOE_BINDIR/app" "$FOE_OBJDIR/main.o" -L"$FOE_LIBDIR" -lb -la
+}

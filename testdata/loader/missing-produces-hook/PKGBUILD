@@ -1,0 +1,9 @@
+pkgname=noproduces
+pkgdesc="Missing produces hook"
+depends=()
+makedepends=(clang)
+source=(foo.c)
+
+build() {
+    echo "building..."
+}

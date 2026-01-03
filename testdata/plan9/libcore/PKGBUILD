@@ -1,6 +1,15 @@
 pkgname=libcore
 pkgdesc="Platform-independent core logic"
-produces=(lib/libcore.a)
 depends=()
+makedepends=(clang ar)
 source=(core.c)
-strategy=system
+
+produces() {
+    echo "lib/libcore.a"
+}
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_LIBDIR"
+    clang -c "$FOE_SRCDIR/core.c" -I"$FOE_SRCDIR/../platform-unix" -o "$FOE_OBJDIR/core.o"
+    ar rcs "$FOE_LIBDIR/libcore.a" "$FOE_OBJDIR/core.o"
+}

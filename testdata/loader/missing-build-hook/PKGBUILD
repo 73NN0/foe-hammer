@@ -1,0 +1,9 @@
+pkgname=nobuild
+pkgdesc="Missing build hook"
+depends=()
+makedepends=(clang)
+source=(foo.c)
+
+produces() {
+    echo "lib/libfoo.a"
+}

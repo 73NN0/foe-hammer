@@ -1,5 +1,0 @@
-# Cycle
-
-## graph 
-
-liba ←→ libb

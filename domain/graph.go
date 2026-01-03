@@ -1,6 +1,8 @@
 package domain
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // src
 // https://stackoverflow.com/questions/23531891/how-do-i-succinctly-remove-the-first-element-from-a-slice-in-go?utm_source=chatgpt.com
@@ -22,19 +24,20 @@ import "fmt"
 // }
 // empty := func() bool { return head >= len(q) }
 
-type BuildGraph struct {
+type ModuleGraph struct {
 	modules map[string]*Module
 	edges   map[string][]string
+	order   []string
 }
 
-func NewBuildGraph() *BuildGraph {
-	return &BuildGraph{
+func NewModuleGraph() *ModuleGraph {
+	return &ModuleGraph{
 		modules: make(map[string]*Module),
 		edges:   make(map[string][]string),
 	}
 }
 
-func (g *BuildGraph) AddModule(m *Module) error {
+func (g *ModuleGraph) Add(m *Module) error {
 	if _, exists := g.modules[m.Name]; exists {
 		return fmt.Errorf("module %s already exists", m.Name)
 	}
@@ -45,15 +48,7 @@ func (g *BuildGraph) AddModule(m *Module) error {
 	return nil
 }
 
-func (g *BuildGraph) GetModule(name string) (*Module, error) {
-	if module, ok := g.modules[name]; !ok {
-		return nil, fmt.Errorf("Module %s doesn't exist", name)
-	} else {
-		return module, nil
-	}
-}
-
-func (g *BuildGraph) TopoSort() ([]string, error) {
+func (g *ModuleGraph) TopoSort() error {
 
 	_moduleLength := len(g.modules)
 	// 1. Construire indegree : combien de deps chaque module attend
@@ -107,19 +102,73 @@ func (g *BuildGraph) TopoSort() ([]string, error) {
 	}
 	// 5. Check cycle : si len(result) != len(modules) → erreur
 	if len(order) != _moduleLength {
-		return nil, fmt.Errorf("cycle detected (or missing nodes in graph)")
+		return ErrGraphCycleDetected
 	}
 
-	return order, nil
+	g.order = order
+
+	return nil
 }
 
-func (g *BuildGraph) Validate() error {
+func (g *ModuleGraph) Validate() error {
 	for name, deps := range g.edges {
 		for _, dep := range deps {
 			if _, exists := g.modules[dep]; !exists {
-				return fmt.Errorf("module %s depends on %s, but %s not found", name, dep, dep)
+				return fmt.Errorf("%w : module %s depends on %s, but %s not found", ErrGraphModuleNotFound, name, dep, dep)
 			}
 		}
 	}
 	return nil
+}
+
+func (g *ModuleGraph) Get(name string) (*Module, error) {
+	if module, ok := g.modules[name]; !ok {
+		return nil, fmt.Errorf(" %w, %s", ErrGraphModuleDoesntExist, name)
+	} else {
+		return module, nil
+	}
+}
+
+func (g *ModuleGraph) Order() []string {
+	return g.order
+}
+
+func (g *ModuleGraph) All() (modules []*Module) {
+	for _, m := range g.modules {
+		modules = append(modules, m)
+	}
+	return
+}
+
+// liba ──→ libb ──→ exe
+//
+// libX ──→ libY ──→ exe
+// Descendants("libb") => ["libb", "exe"]
+func (g *ModuleGraph) Descendants(name string) []string {
+	// Set des modules à rebuilder
+	toRebuild := make(map[string]bool)
+	toRebuild[name] = true
+
+	var result []string
+
+	// Parcours dans l'ordre topo
+	for _, modName := range g.order {
+		// Si ce module est déjà marqué, on l'ajoute au résultat
+		if toRebuild[modName] {
+			result = append(result, modName)
+			continue
+		}
+
+		// Sinon, on regarde si une de ses deps est marquée
+		m := g.modules[modName]
+		for _, dep := range m.Depends {
+			if toRebuild[dep] {
+				toRebuild[modName] = true
+				result = append(result, modName)
+				break
+			}
+		}
+	}
+
+	return result
 }

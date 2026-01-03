@@ -1,0 +1,13 @@
+pkgname=validlib
+pkgdesc="A valid library"
+depends=()
+makedepends=(clang)
+source=(valid.c)
+
+produces() {
+    echo "lib/libvalid.a"
+}
+
+build() {
+    echo "building..."
+}

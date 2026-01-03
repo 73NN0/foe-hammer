@@ -1,6 +1,15 @@
 pkgname=app
 pkgdesc="Demo application with platform abstraction"
-produces=(bin/app)
 depends=(libcore platform-unix)
+makedepends=(clang)
 source=(main.c)
-strategy=system
+
+produces() {
+    echo "bin/app"
+}
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_BINDIR"
+    clang -c "$FOE_SRCDIR/main.c" -I"$FOE_SRCDIR/../libcore" -o "$FOE_OBJDIR/main.o"
+    clang -o "$FOE_BINDIR/app" "$FOE_OBJDIR/main.o" -L"$FOE_LIBDIR" -lcore -lplatform
+}

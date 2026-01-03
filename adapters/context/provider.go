@@ -12,7 +12,9 @@ func NewEnvProvider() *EnvProvider {
 	return &EnvProvider{}
 }
 
+// module can't be null or hasn't have a name the module loader must garanty it
 func (p *EnvProvider) BuildEnv(host domain.Host, target domain.Target, module *domain.Module, outDir string) map[string]string {
+
 	return map[string]string{
 		"FOE_HOST_OS":     host.OS,
 		"FOE_HOST_ARCH":   host.Arch,

@@ -1,0 +1,12 @@
+pkgname=nosource
+pkgdesc="Missing source"
+depends=()
+makedepends=(clang)
+
+produces() {
+    echo "lib/libfoo.a"
+}
+
+build() {
+    echo "building..."
+}

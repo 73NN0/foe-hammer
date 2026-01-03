@@ -1,6 +1,15 @@
 pkgname=liba
 pkgdesc="Math utilities"
-produces=(lib/liba.a)
 depends=()
+makedepends=(clang ar)
 source=(a.c)
-strategy=system
+
+produces() {
+    echo "lib/liba.a"
+}
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_LIBDIR"
+    clang -c "$FOE_SRCDIR/a.c" -o "$FOE_OBJDIR/a.o"
+    ar rcs "$FOE_LIBDIR/liba.a" "$FOE_OBJDIR/a.o"
+}

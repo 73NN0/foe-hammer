@@ -1,6 +1,15 @@
 pkgname=platform-stub
 pkgdesc="Stub platform implementation (for testing)"
-produces=(lib/libplatform.a)
 depends=()
+makedepends=(clang ar)
 source=(platform_stub.c)
-strategy=system
+
+produces() {
+    echo "lib/libplatform.a"
+}
+
+build() {
+    mkdir -p "$FOE_OBJDIR" "$FOE_LIBDIR"
+    clang -c "$FOE_SRCDIR/platform_stub.c" -o "$FOE_OBJDIR/platform_stub.o"
+    ar rcs "$FOE_LIBDIR/libplatform.a" "$FOE_OBJDIR/platform_stub.o"
+}

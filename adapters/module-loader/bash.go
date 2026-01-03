@@ -15,7 +15,6 @@ import (
 const (
 	tagName = "NAME:"
 	tagDesc = "DESC:"
-	tagProd = "PROD:"
 	tagDeps = "DEPS:"
 	tagMake = "MAKE:"
 	tagSrcs = "SRCS:"
@@ -25,7 +24,6 @@ func buildScript(path string) string {
 	return `source "` + path + `"
 printf '` + tagName + `%s\n' "$pkgname"
 printf '` + tagDesc + `%s\n' "$pkgdesc"
-printf '` + tagProd + `%s\n' "${produces[*]}"
 printf '` + tagDeps + `%s\n' "${depends[*]}"
 printf '` + tagMake + `%s\n' "${makedepends[*]}"
 printf '` + tagSrcs + `%s\n' "${source[*]}"`
@@ -56,6 +54,11 @@ func (l *BashLoader) Load(path string) (*domain.Module, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if err := validateHooks(absPath); err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
+
 	m.DirPath = filepath.Dir(absPath)
 	m.Path = absPath
 	return m, nil
@@ -73,8 +76,6 @@ func (l *BashLoader) parseTagged(output *bytes.Buffer) (*domain.Module, error) {
 			m.Name = strings.TrimPrefix(line, tagName)
 		case strings.HasPrefix(line, tagDesc):
 			m.Description = strings.TrimPrefix(line, tagDesc)
-		case strings.HasPrefix(line, tagProd):
-			m.Produces = strings.Fields(strings.TrimPrefix(line, tagProd))
 		case strings.HasPrefix(line, tagDeps):
 			m.Depends = strings.Fields(strings.TrimPrefix(line, tagDeps))
 		case strings.HasPrefix(line, tagMake):
@@ -87,12 +88,43 @@ func (l *BashLoader) parseTagged(output *bytes.Buffer) (*domain.Module, error) {
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("scanning output: %w", err)
 	}
-
+	// validation
 	if m.Name == "" {
 		return nil, fmt.Errorf("missing pkgname")
 	}
 
+	if m.Description == "" {
+		return nil, fmt.Errorf("missing pkgdesc")
+	}
+
+	if len(m.Sources) == 0 {
+		return nil, fmt.Errorf("missing source")
+	}
+
 	return m, nil
+}
+
+func validateHooks(path string) error {
+	script := fmt.Sprintf(`
+        source "%s"
+        if ! type -t produces &>/dev/null; then
+            echo "missing produces()" >&2
+            exit 1
+        fi
+        if ! type -t build &>/dev/null; then
+            echo "missing build()" >&2
+            exit 1
+        fi
+    `, path)
+
+	cmd := exec.Command("bash", "-c", script)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("invalid PKGBUILD: %s", strings.TrimSpace(stderr.String()))
+	}
+	return nil
 }
 
 func (l *BashLoader) LoadAll(rootDir string) ([]*domain.Module, error) {
