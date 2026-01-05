@@ -64,9 +64,18 @@ func (o *OrchestrateCommand) Run(args []string) error {
 		toolchecker.NewWhichChecker(),
 	)
 
-	orchestrator.Load(o.rootDir)
-	orchestrator.SetOutput(o.outDir)
-	orchestrator.Plan(target)
+	if err := orchestrator.Load(o.rootDir); err != nil {
+		return fmt.Errorf("failed to load modules from %s: %w", o.rootDir, err)
+	}
+
+	if err := orchestrator.SetOutput(o.outDir); err != nil {
+		return fmt.Errorf("failed to set output directory: %w", err)
+	}
+
+	if err := orchestrator.Plan(target); err != nil {
+		return fmt.Errorf("failed to plan build: %w", err)
+	}
+
 	if err := orchestrator.BuildAll(target); err != nil {
 		return err
 	}

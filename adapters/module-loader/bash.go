@@ -3,8 +3,9 @@ package moduleloader
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
-	"os"
+	"io/fs"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -18,6 +19,10 @@ const (
 	tagDeps = "DEPS:"
 	tagMake = "MAKE:"
 	tagSrcs = "SRCS:"
+)
+
+var (
+	ErrModuleLoaderNoLoadingModule error = errors.New("Loading module")
 )
 
 func buildScript(path string) string {
@@ -127,52 +132,83 @@ func validateHooks(path string) error {
 	return nil
 }
 
+// func (l *BashLoader) LoadAll(rootDir string) ([]*domain.Module, error) {
+// 	var modules []*domain.Module
+
+// 	entries, err := os.ReadDir(rootDir)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	for _, entry := range entries {
+// 		if !entry.IsDir() {
+// 			continue
+// 		}
+
+// 		if strings.HasPrefix(entry.Name(), ".") {
+// 			continue
+// 		}
+// 		if entry.Name() == "bin" || entry.Name() == "build" {
+// 			continue
+// 		}
+
+// 		path, found := l.findManifest(filepath.Join(rootDir, entry.Name()))
+// 		if !found {
+// 			continue
+// 		}
+
+// 		m, err := l.Load(path)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		modules = append(modules, m)
+// 	}
+
+// 	return modules, nil
+// }
+
 func (l *BashLoader) LoadAll(rootDir string) ([]*domain.Module, error) {
 	var modules []*domain.Module
 
-	entries, err := os.ReadDir(rootDir)
+	err := filepath.WalkDir(rootDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// skip hidden directories
+		if d.IsDir() && strings.HasPrefix(d.Name(), ".") {
+			return filepath.SkipDir
+		}
+
+		// skip common build/output directories
+		if d.IsDir() {
+			switch d.Name() {
+			// TODO: config
+			case "bin", "build", "obj", "node_modules", "vendor":
+				return filepath.SkipDir
+			}
+		}
+
+		// Look for PKGBUILD file
+		// Todo config
+
+		if !d.IsDir() && strings.EqualFold(d.Name(), "PKGBUILD") {
+			m, err := l.Load(path)
+			if err != nil {
+				// improve this
+				return ErrModuleLoaderNoLoadingModule
+			}
+
+			modules = append(modules, m)
+		}
+
+		return nil
+
+	})
+
 	if err != nil {
 		return nil, err
 	}
 
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-
-		if strings.HasPrefix(entry.Name(), ".") {
-			continue
-		}
-		if entry.Name() == "bin" || entry.Name() == "build" {
-			continue
-		}
-
-		path, found := l.findManifest(filepath.Join(rootDir, entry.Name()))
-		if !found {
-			continue
-		}
-
-		m, err := l.Load(path)
-		if err != nil {
-			return nil, err
-		}
-		modules = append(modules, m)
-	}
-
 	return modules, nil
-}
-
-func (l *BashLoader) findManifest(dir string) (string, bool) {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return "", false
-	}
-
-	for _, entry := range entries {
-		if strings.EqualFold(entry.Name(), "PKGBUILD") {
-			return filepath.Join(dir, entry.Name()), true
-		}
-	}
-
-	return "", false
 }

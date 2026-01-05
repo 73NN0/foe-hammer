@@ -1,6 +1,8 @@
 package moduleloader
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -124,5 +126,126 @@ func TestValidateHooks(t *testing.T) {
 				t.Fatalf("unexpected error: %v", err)
 			}
 		})
+	}
+}
+
+func TestLoadAllRecursive(t *testing.T) {
+	loader := NewBashLoader()
+
+	modules, err := loader.LoadAll("../../testdata/plan9")
+	if err != nil {
+		t.Fatalf("LoadAll failed: %v", err)
+	}
+
+	expectedModules := map[string]bool{
+		"platform-stub": false,
+		"platform-unix": false,
+		"libcore":       false,
+		"app":           false,
+	}
+
+	for _, m := range modules {
+		if _, ok := expectedModules[m.Name]; ok {
+			expectedModules[m.Name] = true
+		}
+	}
+
+	for name, found := range expectedModules {
+		if !found {
+			t.Errorf("expected to find module %q but it was not loaded", name)
+		}
+	}
+	t.Logf("Found %d modules", len(modules))
+	for _, m := range modules {
+		t.Logf(" -%s (path: %s)", m.Name, m.DirPath)
+	}
+}
+
+func TestLoadAllSkipsHiddenDirs(t *testing.T) {
+	// Créer un dossier temporaire avec une structure
+	tmpDir := t.TempDir()
+
+	// Créer un module normal
+	normalDir := filepath.Join(tmpDir, "normal")
+	os.MkdirAll(normalDir, 0755)
+	writePKGBUILD(t, normalDir, "normal-mod")
+
+	// Créer un module dans un dossier caché (doit être ignoré)
+	hiddenDir := filepath.Join(tmpDir, ".hidden")
+	os.MkdirAll(hiddenDir, 0755)
+	writePKGBUILD(t, hiddenDir, "hidden-mod")
+
+	loader := NewBashLoader()
+	modules, err := loader.LoadAll(tmpDir)
+	if err != nil {
+		t.Fatalf("LoadAll failed: %v", err)
+	}
+
+	if len(modules) != 1 {
+		t.Errorf("expected 1 module, got %d", len(modules))
+	}
+
+	if len(modules) > 0 && modules[0].Name != "normal-mod" {
+		t.Errorf("expected module 'normal-mod', got %q", modules[0].Name)
+	}
+}
+
+func TestLoadAllSkipsBuildDirs(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Module normal
+	normalDir := filepath.Join(tmpDir, "mylib")
+	os.MkdirAll(normalDir, 0755)
+	writePKGBUILD(t, normalDir, "mylib")
+
+	// Module dans bin/ (doit être ignoré)
+	binDir := filepath.Join(tmpDir, "bin", "something")
+	os.MkdirAll(binDir, 0755)
+	writePKGBUILD(t, binDir, "bin-mod")
+
+	// Module dans build/ (doit être ignoré)
+	buildDir := filepath.Join(tmpDir, "build", "something")
+	os.MkdirAll(buildDir, 0755)
+	writePKGBUILD(t, buildDir, "build-mod")
+
+	loader := NewBashLoader()
+	modules, err := loader.LoadAll(tmpDir)
+	if err != nil {
+		t.Fatalf("LoadAll failed: %v", err)
+	}
+
+	if len(modules) != 1 {
+		t.Errorf("expected 1 module, got %d", len(modules))
+		for _, m := range modules {
+			t.Logf("  found: %s", m.Name)
+		}
+	}
+}
+
+func writePKGBUILD(t *testing.T, dir, name string) {
+	t.Helper()
+	content := `pkgname=` + name + `
+pkgdesc="Test module"
+depends=()
+makedepends=(clang)
+source=(dummy.c)
+
+produces() {
+    echo "lib/lib` + name + `.a"
+}
+
+build() {
+    echo "building..."
+}
+`
+	path := filepath.Join(dir, "PKGBUILD")
+	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+		t.Fatalf("failed to write PKGBUILD: %v", err)
+	}
+
+	// Créer aussi dummy.c pour que la validation passe
+	dummyPath := filepath.Join(dir, "dummy.c")
+	if err := os.WriteFile(dummyPath, []byte("// dummy\n"), 0644); err != nil {
+		t.Fatalf("failed to write dummy.c: %v", err)
 	}
 }
