@@ -65,8 +65,6 @@ func NewCLI() *CLI {
 func (c *CLI) Run(args []string) error {
 	if len(args) < 1 {
 		// no command -> display help
-		fmt.Println("no")
-
 		return c.registry.RunCommand("help", []string{})
 	}
 

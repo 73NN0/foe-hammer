@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/73NN0/foe-hammer/domain"
 	"github.com/73NN0/foe-hammer/ports"
@@ -78,8 +79,13 @@ func (o *Orchestrator) Load(rootDir string) error {
 
 // SetOutput sets the output directory for build artifacts.
 // Must be called before Plan.
-func (o *Orchestrator) SetOutput(outDir string) {
-	o.outDir = outDir
+func (o *Orchestrator) SetOutput(outDir string) error {
+	absPath, err := filepath.Abs(outDir)
+	if err != nil {
+		return err
+	}
+	o.outDir = absPath
+	return nil
 }
 
 // All returns all loaded modules directly from the internal graph so there is no topoligical order.

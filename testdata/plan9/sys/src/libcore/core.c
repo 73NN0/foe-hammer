@@ -1,5 +1,5 @@
-#include "core.h"
-#include "platform.h"
+#include <core.h>
+#include <platform.h>
 
 static int initialized = 0;
 
