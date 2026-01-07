@@ -3,7 +3,7 @@ package domain_test
 import (
 	"testing"
 
-	"github.com/73NN0/foe-hammer/domain"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
 )
 
 // todo improve this test with cycle limit
