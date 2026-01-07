@@ -1,6 +1,6 @@
 package ports
 
-import "github.com/73NN0/foe-hammer/domain"
+import "github.com/73NN0/foe-hammer/internal/orchestrator/domain"
 
 // HookRunner executes the build hook of a module
 type HookRunner interface {

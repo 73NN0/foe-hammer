@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/73NN0/foe-hammer/domain"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
 )
 
 const (

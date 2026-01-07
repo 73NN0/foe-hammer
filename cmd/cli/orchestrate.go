@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/73NN0/foe-hammer/adapters/context"
-	hookrunner "github.com/73NN0/foe-hammer/adapters/hook-runner"
-	moduleloader "github.com/73NN0/foe-hammer/adapters/module-loader"
-	"github.com/73NN0/foe-hammer/adapters/toolchecker"
-	"github.com/73NN0/foe-hammer/app"
-	"github.com/73NN0/foe-hammer/domain"
+	"github.com/73NN0/foe-hammer/internal/orchestrator"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/adapters/context"
+	hookrunner "github.com/73NN0/foe-hammer/internal/orchestrator/adapters/hook-runner"
+	moduleloader "github.com/73NN0/foe-hammer/internal/orchestrator/adapters/module-loader"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/adapters/toolchecker"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
 )
 
 type OrchestrateCommand struct {
@@ -56,7 +56,7 @@ func (o *OrchestrateCommand) Run(args []string) error {
 	target.OS = o.targetOs
 	target.Arch = o.targetArch
 
-	orchestrator := app.NewOrchestrator(
+	orchestrator := orchestrator.NewOrchestrator(
 		moduleloader.NewBashLoader(),
 		context.NewEnvProvider(),
 		hookrunner.NewBashHookRunner(),

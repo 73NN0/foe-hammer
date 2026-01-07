@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/73NN0/foe-hammer/domain"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
 )
 
 type WhichChecker struct{}

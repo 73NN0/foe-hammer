@@ -1,4 +1,4 @@
-package app_test
+package orchestrator_test
 
 import (
 	"os"
@@ -6,12 +6,12 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/73NN0/foe-hammer/adapters/context"
-	hookrunner "github.com/73NN0/foe-hammer/adapters/hook-runner"
-	moduleloader "github.com/73NN0/foe-hammer/adapters/module-loader"
-	"github.com/73NN0/foe-hammer/adapters/toolchecker"
-	"github.com/73NN0/foe-hammer/app"
-	"github.com/73NN0/foe-hammer/domain"
+	"github.com/73NN0/foe-hammer/internal/orchestrator"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/adapters/context"
+	hookrunner "github.com/73NN0/foe-hammer/internal/orchestrator/adapters/hook-runner"
+	moduleloader "github.com/73NN0/foe-hammer/internal/orchestrator/adapters/module-loader"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/adapters/toolchecker"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
 )
 
 const (
@@ -82,7 +82,7 @@ func TestOrchestrator(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			outDir := t.TempDir()
 
-			orchestrator := app.NewOrchestrator(
+			orchestrator := orchestrator.NewOrchestrator(
 				moduleloader.NewBashLoader(),
 				context.NewEnvProvider(),
 				hookrunner.NewBashHookRunner(),

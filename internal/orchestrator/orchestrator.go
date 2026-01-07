@@ -1,11 +1,11 @@
-package app
+package orchestrator
 
 import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/73NN0/foe-hammer/domain"
-	"github.com/73NN0/foe-hammer/ports"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
+	"github.com/73NN0/foe-hammer/internal/orchestrator/ports"
 )
 
 // Orchestrator coordinates the build of modules.
