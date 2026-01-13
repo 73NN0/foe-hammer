@@ -6,18 +6,18 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/73NN0/foe-hammer/internal/orchestrator"
 	"github.com/73NN0/foe-hammer/internal/orchestrator/adapters/context"
 	hookrunner "github.com/73NN0/foe-hammer/internal/orchestrator/adapters/hook-runner"
 	moduleloader "github.com/73NN0/foe-hammer/internal/orchestrator/adapters/module-loader"
 	"github.com/73NN0/foe-hammer/internal/orchestrator/adapters/toolchecker"
+	orchestrator "github.com/73NN0/foe-hammer/internal/orchestrator/app"
 	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
 )
 
 const (
-	simplePath string = "../testdata/simple"
-	cyclePath  string = "../testdata/cycle"
-	plan9Path  string = "../testdata/plan9"
+	simplePath string = "../../testdata/simple"
+	cyclePath  string = "../../testdata/cycle"
+	plan9Path  string = "../../testdata/plan9"
 )
 
 func TestOrchestrator(t *testing.T) {

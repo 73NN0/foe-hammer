@@ -360,3 +360,26 @@ This is where SOA shines: iterating one field doesn't load unrelated data into c
 - Flaws and Anti-patterns
     - https://threedots.tech/post/common-anti-patterns-in-go-web-applications/
     - https://threedots.tech/post/microservices-test-architecture/
+
+## Queue in go
+
+
+// src
+// https://stackoverflow.com/questions/23531891/how-do-i-succinctly-remove-the-first-element-from-a-slice-in-go?utm_source=chatgpt.com
+// but need to search before implementing this kind of queue
+
+// q := make([]string, 0, len(g.modules))
+// head := 0
+
+// push := func(x string) { q = append(q, x) }
+// pop := func() string {
+//     x := q[head]
+//     head++
+//     // option anti “memory retention” si besoin
+//     if head > 1024 && head*2 >= len(q) {
+//         q = append([]string(nil), q[head:]...)
+//         head = 0
+//     }
+//     return x
+// }
+// empty := func() bool { return head >= len(q) }

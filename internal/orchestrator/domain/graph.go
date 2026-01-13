@@ -1,28 +1,15 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
 )
 
-// src
-// https://stackoverflow.com/questions/23531891/how-do-i-succinctly-remove-the-first-element-from-a-slice-in-go?utm_source=chatgpt.com
-// but need to search before implementing this kind of queue
-
-// q := make([]string, 0, len(g.modules))
-// head := 0
-
-// push := func(x string) { q = append(q, x) }
-// pop := func() string {
-//     x := q[head]
-//     head++
-//     // option anti “memory retention” si besoin
-//     if head > 1024 && head*2 >= len(q) {
-//         q = append([]string(nil), q[head:]...)
-//         head = 0
-//     }
-//     return x
-// }
-// empty := func() bool { return head >= len(q) }
+var (
+	ErrGraphCycleDetected     = errors.New("cycle detected")
+	ErrGraphModuleNotFound    = errors.New("Module not Found")
+	ErrGraphModuleDoesntExist = errors.New("Module doesn't exist")
+)
 
 type ModuleGraph struct {
 	modules map[string]*Module

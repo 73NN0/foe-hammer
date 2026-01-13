@@ -2,11 +2,39 @@ package orchestrator
 
 import (
 	"fmt"
+	"io"
 	"path/filepath"
 
 	"github.com/73NN0/foe-hammer/internal/orchestrator/domain"
-	"github.com/73NN0/foe-hammer/internal/orchestrator/ports"
 )
+
+// ContextProvider builds the environment variables for hook execution
+type ContextProvider interface {
+	BuildEnv(host domain.Host, target domain.Target, module *domain.Module, outDir string) map[string]string
+}
+
+type Executor interface {
+	Run(cmd string, args []string, workDir string, stdout, stderr io.Writer) error
+}
+
+// HookRunner executes the build hook of a module
+type HookRunner interface {
+	Run(module *domain.Module, env map[string]string) error
+	Produces(module *domain.Module, env map[string]string) ([]string, error)
+}
+
+type ModuleLoader interface {
+	LoadAll(rootDir string) ([]*domain.Module, error)
+	Load(path string) (*domain.Module, error)
+}
+
+// ToolChecker vérifie que les outils externes sont disponibles
+type ToolChecker interface {
+	// Check retourne nil si l'outil est disponible, une erreur sinon
+	Check(tool string) error
+	// Suggest retourne comment installer l'outil manquant
+	Suggest(tool string, host domain.Host) string
+}
 
 // Orchestrator coordinates the build of modules.
 // It loads modules, resolves dependencies, and executes build hooks.
@@ -19,10 +47,10 @@ import (
 //	o.Plan(target)
 //	o.BuildAll(target)
 type Orchestrator struct {
-	loader  ports.ModuleLoader
-	context ports.ContextProvider
-	runner  ports.HookRunner
-	checker ports.ToolChecker // CanBuild
+	loader  ModuleLoader
+	context ContextProvider
+	runner  HookRunner
+	checker ToolChecker // CanBuild
 	host    domain.Host
 	graph   *domain.ModuleGraph
 	rootDir string
@@ -30,11 +58,11 @@ type Orchestrator struct {
 }
 
 func NewOrchestrator(
-	loader ports.ModuleLoader,
-	context ports.ContextProvider,
-	runner ports.HookRunner,
+	loader ModuleLoader,
+	context ContextProvider,
+	runner HookRunner,
 	host domain.Host,
-	checker ports.ToolChecker,
+	checker ToolChecker,
 ) *Orchestrator {
 	return &Orchestrator{
 		loader:  loader,
