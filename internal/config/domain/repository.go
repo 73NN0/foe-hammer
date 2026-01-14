@@ -1,6 +1,10 @@
 package domain
 
-type Config interface {
-	Get(key string) (string, bool)
-	GetAll() map[string]string
+import "errors"
+
+var ErrNotFound = errors.New("config not found")
+
+type Repository interface {
+	List() ([]ProjectConfig, error)
+	GetByID(int) (ProjectConfig, error)
 }
